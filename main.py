@@ -1,5 +1,5 @@
 from HopfieldNetwork import ModernHopfieldNetwork, WordHopfieldNetwork
-from wordle import WordleGame
+from wordle import WordleGame, Solver
 import numpy as np
 import os
 
@@ -30,10 +30,30 @@ def temp():
 
 
 def main():
-    # hopfield_network = HopfieldNetwork()
-    NUM_LETTER = 5  # Number of letters in the word
+    # # Load set of words from word_list\words_5letters.txt
+    # file_path = 'word_list/words_5letter.txt'
+    # if not os.path.exists(file_path):
+    #     print(f"Error: The file {file_path} does not exist.")
+    #     return
+    # with open(file_path, 'r') as file:
+    #     words = [line.strip()
+    #              for line in file if len(line.strip()) == NUM_LETTER]
+    # network = WordHopfieldNetwork(word_length=5, alphabet_size=26, beta=3.0)
+    # network.store_vocabulary(words)
 
-    # Load set of words from word_list\words_5letters.txt
+    # word = "s_ate"
+    # completed_word = network.retrieve_possible_words(word)
+    # print(f"Possible completions for '{word}': {completed_word}")
+
+    # # List of best words to initialize the game
+    best_words = ["slate", "crane", "raise", "stare", "trace"]
+
+    print("\n" + "="*50)
+    print("🎮 INTERACTIVE MODE")
+    print("="*50)
+
+    # Interactive game
+    NUM_LETTER = 5
     file_path = 'word_list/words_5letter.txt'
     if not os.path.exists(file_path):
         print(f"Error: The file {file_path} does not exist.")
@@ -44,35 +64,32 @@ def main():
     network = WordHopfieldNetwork(word_length=5, alphabet_size=26, beta=3.0)
     network.store_vocabulary(words)
 
-    completed_word = network.retrieve_possible_words("a____")
-    print(f"Possible completions for 'a____': {completed_word}")
+    solver = Solver(word_length=5, init_words=best_words,
+                    hopfield_network=network)
+    interactive_game = WordleGame(num_letters=5)  # Random word
+    print(
+        f"New game started! Guess the {interactive_game.num_letters}-letter word.")
 
-    # print("\n" + "="*50)
-    # print("🎮 INTERACTIVE MODE")
-    # print("="*50)
+    while not interactive_game.game_over:
+        # os.system('cls')
+        interactive_game.show()
+        try:
+            guess = input(
+                f"\nEnter your {interactive_game.num_letters}-letter guess (or 'quit'): ").strip()
+            if guess.lower() == 'quit':
+                print(f"The word was: {interactive_game.target_word}")
+                break
 
-    # # Interactive game
-    # interactive_game = WordleGame(num_letters=5)  # Random word
-    # print(f"New game started! Guess the {interactive_game.num_letters}-letter word.")
+            hint, continues = interactive_game.play(guess)
+            print(f"Hint: {' '.join(hint)}")
+            print(solver.get_word_from_hint(guess, ''.join(hint).lower()))
 
-    # while not interactive_game.game_over:
-    #     os.system('cls')
-    #     interactive_game.show()
-    #     try:
-    #         guess = input(f"\nEnter your {interactive_game.num_letters}-letter guess (or 'quit'): ").strip()
-    #         if guess.lower() == 'quit':
-    #             print(f"The word was: {interactive_game.target_word}")
-    #             break
+        except ValueError as e:
+            print(f"Error: {e}")
 
-    #         hint, continues = interactive_game.play(guess)
-    #         print(f"Hint: {' '.join(hint)}")
-
-    #     except ValueError as e:
-    #         print(f"Error: {e}")
-
-    # if interactive_game.game_over:
-    #     interactive_game.show()
-    #     interactive_game.stat()
+    if interactive_game.game_over:
+        interactive_game.show()
+        interactive_game.stat()
 
 
 if __name__ == "__main__":
