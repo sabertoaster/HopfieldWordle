@@ -92,7 +92,8 @@ class Solver:
             raise ValueError("No valid combinations found based on the hint.")
 
         for word in hints:
-            words.update(self.hopfield_network.find_matching_words(word))
+            words.update(
+                self.hopfield_network.retrieve_possible_words(word))
         words = list(words)
 
         self.possible_words.extend([

@@ -1,2 +1,0 @@
-from .HopfieldNetwork import HopfieldNetwork
-from .ModernHopfieldNetwork import ModernHopfieldNetwork
